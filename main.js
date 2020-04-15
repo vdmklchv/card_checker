@@ -24,11 +24,68 @@ const batch = [valid1, valid2, valid3, valid4, valid5, invalid1, invalid2, inval
 
 
 // Add your functions below:
+function validateCred(array)    {
+    let checkingArray = [];
+    let tempArray = array.reverse();
+    let sum = 0;
+
+    for (let i = 0; i < tempArray.length; i++) {
+        let tempvar = 0;
+        if (i % 2 !== 0)    {
+            tempvar = tempArray[i] * 2;
+            tempvar > 9 ? checkingArray.unshift(tempvar - 9):checkingArray.unshift(tempvar);
+        } else    {
+            checkingArray.unshift(tempArray[i]);
+        }
+    }
 
 
+    for (let j = 0; j < checkingArray.length; j++)  {
+        sum += checkingArray[j];
+    }
 
+    return (sum % 10) === 0 ? true:false;
+}
 
+function findInvalidCards(nestedArray)    {
+    let invalidCards = [];
+    for (i = 0; i < nestedArray.length; i++)    {
+        if (validateCred(nestedArray[i]) === false )    {
+            invalidCards.push(nestedArray[i].reverse());
+        }
+    }
+    return invalidCards;
+}
 
+let tempArray = findInvalidCards(batch);
 
+function idInvalidCardCompanies(tempArray)   {
+    const invalidCardCompanies = [];
+    let company = '';
+    for (i = 0; i < tempArray.length; i++)   {
+        switch (tempArray[i][0]) {
+                case 3:
+                    company = 'Amex';
+                    break;
+                case 4:
+                    company = 'Visa';
+                    break;
+                case 5:
+                    company = 'Mastercard';
+                    break;
+                case 6:
+                    company = 'Discover';
+                    break;
+                default:
+                    company = 'Not defined';
+                    break;
+        }
+    
+    
+        if (invalidCardCompanies.includes(company) === false)  {
+            invalidCardCompanies.push(company);
+        }
+    }
+}
 
-
+console.log(idInvalidCardCompanies(tempArray));
