@@ -86,6 +86,7 @@ function idInvalidCardCompanies(tempArray)   {
             invalidCardCompanies.push(company);
         }
     }
+    return invalidCardCompanies;
 }
 
 console.log(idInvalidCardCompanies(tempArray));
