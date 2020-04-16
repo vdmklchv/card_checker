@@ -11,6 +11,7 @@ const invalid2 = [5, 7, 9, 5, 5, 9, 3, 3, 9, 2, 1, 3, 4, 6, 4, 3]
 const invalid3 = [3, 7, 5, 7, 9, 6, 0, 8, 4, 4, 5, 9, 9, 1, 4]
 const invalid4 = [6, 0, 1, 1, 1, 2, 7, 9, 6, 1, 7, 7, 7, 9, 3, 5]
 const invalid5 = [5, 3, 8, 2, 0, 1, 9, 7, 7, 2, 8, 8, 3, 8, 5, 4]
+const customInvalid = [3, 5, 2, 5, 6, 9, 7, 8, 2, 5, 6, 2, 6, 4, 6, 6]
 
 // Can be either valid or invalid
 const mystery1 = [3, 4, 4, 8, 0, 1, 9, 6, 8, 3, 0, 5, 4, 1, 4]
@@ -23,62 +24,84 @@ const mystery5 = [4, 9, 1, 3, 5, 4, 0, 4, 6, 3, 0, 7, 2, 5, 2, 3]
 const batch = [valid1, valid2, valid3, valid4, valid5, invalid1, invalid2, invalid3, invalid4, invalid5, mystery1, mystery2, mystery3, mystery4, mystery5]
 
 
-// Add your functions below:
-function validateCred(array)    {
-    let checkingArray = [];
-    let tempArray = array.reverse();
-    let sum = 0;
 
-    for (let i = 0; i < tempArray.length; i++) {
-        let tempvar = 0;
+// Add your functions below:
+
+function reverseArray(arrayToReverse)   {
+    let reversedArray = [];
+    for (i = 0; i < arrayToReverse.length; i++) {
+        reversedArray.unshift(arrayToReverse[i]);
+    }
+    return reversedArray;
+}
+
+function makeCheckingArray(inputArray)  {
+    checkingArray = [];
+    let intermediateArray = reverseArray(inputArray);
+    let firstItem = intermediateArray[0];
+    checkingArray.push(firstItem);
+
+    for (let i = 1; i < intermediateArray.length; i++) {
+        let tempVar = 0;
         if (i % 2 !== 0)    {
-            tempvar = tempArray[i] * 2;
-            tempvar > 9 ? checkingArray.unshift(tempvar - 9):checkingArray.unshift(tempvar);
+            tempVar = intermediateArray[i] * 2;
+            tempVar > 9 ? checkingArray.push(tempVar - 9):checkingArray.push(tempVar);
         } else    {
-            checkingArray.unshift(tempArray[i]);
+            checkingArray.push(intermediateArray[i]);
         }
     }
+    intermediateArray = reverseArray(checkingArray);
+    return intermediateArray; //return correct order of previously reversed with every other number doubled; TESTED AND WORKING!!
+}
 
-
-    for (let j = 0; j < checkingArray.length; j++)  {
-        sum += checkingArray[j];
+function calculateSum(forSumArray)   {
+    let sum = 0;
+    for (let i = 0; i < forSumArray.length; i++)  {
+        sum = sum + forSumArray[i];
     }
+    return sum; //this function calculates sum of numbers of checking array. TESTED AND WORKING!!!
+}
 
-    return (sum % 10) === 0 ? true:false;
+function validateCred(forValidateCredArray)    {
+    let sumTotal = 0;
+    sumTotal = calculateSum(makeCheckingArray(forValidateCredArray));
+    return (sumTotal % 10) === 0 ? true:false; 
 }
 
 function findInvalidCards(nestedArray)    {
-    let invalidCards = [];
-    for (i = 0; i < nestedArray.length; i++)    {
-        if (validateCred(nestedArray[i]) === false )    {
-            invalidCards.push(nestedArray[i].reverse());
-        }
-    }
-    return invalidCards;
-}
+    let invalidCardsList = [];
+    for (let i = 0; i < nestedArray.length; i++)    {
+        if (validateCred(nestedArray[i]) !== true)    {
+            invalidCardsList.push(nestedArray[i]);
+        };
+    };
+    return invalidCardsList;    // arranges an array with all invalid cards
+} 
 
-let tempArray = findInvalidCards(batch);
 
-function idInvalidCardCompanies(tempArray)   {
+let tempArray = findInvalidCards(batch); 
+
+
+function idInvalidCardCompanies(invalidCardArray)   {
     const invalidCardCompanies = [];
-    let company = '';
-    for (i = 0; i < tempArray.length; i++)   {
-        switch (tempArray[i][0]) {
-                case 3:
-                    company = 'Amex';
-                    break;
-                case 4:
-                    company = 'Visa';
-                    break;
-                case 5:
-                    company = 'Mastercard';
-                    break;
-                case 6:
-                    company = 'Discover';
-                    break;
-                default:
-                    company = 'Not defined';
-                    break;
+    let company;
+    for (i = 0; i < invalidCardArray.length; i++)   {
+        switch (invalidCardArray[i][0]) {
+            case 3:
+                company = 'Amex';
+                break;
+            case 4:
+                company = 'Visa';
+                break;
+            case 5:
+                company = 'Mastercard';
+                break;
+            case 6:
+                company = 'Discover';
+                break;
+            default:
+                company = 'Not defined';
+                break;
         }
     
     
@@ -86,7 +109,31 @@ function idInvalidCardCompanies(tempArray)   {
             invalidCardCompanies.push(company);
         }
     }
-    return invalidCardCompanies;
+    return invalidCardCompanies;            // returns a list of non-repeating emitent names
+} 
+
+function makeNumberValid(invalidCard) {
+    const invalidCardArrayChecking = makeCheckingArray(invalidCard);
+    const invalidSum = calculateSum(invalidCardArrayChecking);
+    const correctSum = invalidSum - invalidCardArrayChecking[invalidCardArrayChecking.length - 1];
+    const checkDigit = correctSum * 9 % 10;
+    const fixedCard = invalidCard.slice(0, -1);
+    fixedCard.push(checkDigit);
+    return fixedCard; // makes incorrect number correct
 }
 
-console.log(idInvalidCardCompanies(tempArray));
+
+function allCardsValid(invalidArray) {
+    let correctedArray = [];
+    let correctedNum = 0;
+    for (let i = 0; i < invalidArray.length; i++) {
+        correctedNum = makeNumberValid(invalidArray[i]);
+        correctedArray.push(correctedNum);
+    }
+    return correctedArray;
+
+}
+
+console.log(allCardsValid(tempArray));
+
+
